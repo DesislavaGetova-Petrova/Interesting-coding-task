@@ -2,10 +2,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.RecursiveTask;
 
@@ -15,12 +12,14 @@ public class Coding {
         String url = "https://raw.githubusercontent.com/nikiiv/JavaCodingTestOne/master/scrabble-words.txt";
         try {
             Map<Integer, Set<String>> wordCollections = readWordsFromFile(url);
+
             Set<String> previousWords = Set.of("I", "A");
             for (int i = 2; i <= 9; i++) {
                 Set<String> currentWords = findWordsWithSubstrings(wordCollections.getOrDefault(i, new HashSet<>()), previousWords);
-                wordCollections.put(i, currentWords);
+               wordCollections.put(i, currentWords);
                 previousWords = currentWords;
             }
+
             System.out.printf("Number of words:%d%n", wordCollections.get(9).size());
             for (String word : wordCollections.get(9)) {
                 System.out.println(word);
@@ -52,49 +51,39 @@ public class Coding {
     static class SubstringTask extends RecursiveTask<Set<String>> {
         private final String[] targetWords;
         private final Set<String> sourceWords;
-        private final Map<Character, Integer> sourceCharFreq;
 
         SubstringTask(String[] targetWords, Set<String> sourceWords) {
             this.targetWords = targetWords;
             this.sourceWords = sourceWords;
-            this.sourceCharFreq = computeCharFrequencies(sourceWords);
         }
 
         @Override
         protected Set<String> compute() {
             Set<String> result = new HashSet<>();
             for (String targetWord : targetWords) {
-                if (containsAllChars(targetWord)) {
+                if (isValid(targetWord)) {
                     result.add(targetWord);
                 }
             }
             return result;
         }
 
-        private boolean containsAllChars(String targetWord) {
-            Map<Character, Integer> targetCharFreq = new HashMap<>();
+        private boolean isValid(String targetWord) {
+            List<Character> targetWordList = new ArrayList<>();
             for (char c : targetWord.toCharArray()) {
-                targetCharFreq.put(c, targetCharFreq.getOrDefault(c, 0) + 1);
+                targetWordList.add(c);
             }
-            for (Map.Entry<Character, Integer> entry : sourceCharFreq.entrySet()) {
-                char c = entry.getKey();
-                int sourceFreq = entry.getValue();
-                int targetFreq = targetCharFreq.getOrDefault(c, 0);
-                if (targetFreq < sourceFreq) {
-                    return false;
-                }
-            }
-            return true;
-        }
 
-        private Map<Character, Integer> computeCharFrequencies(Set<String> words) {
-            Map<Character, Integer> charFreq = new HashMap<>();
-            for (String word : words) {
-                for (char c : word.toCharArray()) {
-                    charFreq.put(c, charFreq.getOrDefault(c, 0) + 1);
+            for (String s : sourceWords) {
+                List<Character> sourceWordList = new ArrayList<>();
+                for (char c : s.toCharArray()) {
+                    sourceWordList.add(c);
+                }
+                if (targetWordList.containsAll(sourceWordList)) {
+                    return true;
                 }
             }
-            return charFreq;
+            return false;
         }
     }
 }
