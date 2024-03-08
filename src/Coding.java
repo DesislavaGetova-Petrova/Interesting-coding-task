@@ -16,7 +16,7 @@ public class Coding {
             Set<String> previousWords = Set.of("I", "A");
             for (int i = 2; i <= 9; i++) {
                 Set<String> currentWords = findWordsWithSubstrings(wordCollections.getOrDefault(i, new HashSet<>()), previousWords);
-               wordCollections.put(i, currentWords);
+                wordCollections.put(i, currentWords);
                 previousWords = currentWords;
             }
 
@@ -69,18 +69,15 @@ public class Coding {
         }
 
         private boolean isValid(String targetWord) {
-            List<Character> targetWordList = new ArrayList<>();
-            for (char c : targetWord.toCharArray()) {
-                targetWordList.add(c);
-            }
+            for (int i = 0; i < targetWord.length(); i++) {
+                StringBuilder modifiedWord = new StringBuilder(targetWord);
+                modifiedWord.deleteCharAt(i);
+                String modifiedString = modifiedWord.toString();
 
-            for (String s : sourceWords) {
-                List<Character> sourceWordList = new ArrayList<>();
-                for (char c : s.toCharArray()) {
-                    sourceWordList.add(c);
-                }
-                if (targetWordList.containsAll(sourceWordList)) {
-                    return true;
+                for (String sourceWord : sourceWords) {
+                    if (modifiedString.equals(sourceWord)) {
+                        return true;
+                    }
                 }
             }
             return false;
